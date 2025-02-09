@@ -20,7 +20,6 @@
             color: #ffffff;
         }
 
-        /* Channel List */
         #channelList {
             margin-top: 20px;
             display: inline-block;
@@ -31,12 +30,6 @@
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         }
 
-        h3 {
-            margin-bottom: 10px;
-            color: #bbbbbb;
-        }
-
-        /* Channel Container */
         .channel-container {
             display: flex;
             align-items: center;
@@ -49,13 +42,11 @@
             transition: background 0.3s;
         }
 
-        /* Selected State */
         .channel-container.selected {
             background: #00c853;
             color: #000;
         }
 
-        /* Stream Thumbnails */
         .stream-thumbnail {
             width: 160px;
             height: 90px;
@@ -63,20 +54,17 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Channel Info */
         .channel-info {
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* Labels */
         .channel-name {
             font-size: 18px;
             font-weight: bold;
         }
 
-        /* Stream Title */
         .stream-title {
             font-size: 14px;
             color: #bbbbbb;
@@ -86,56 +74,92 @@
             text-overflow: ellipsis;
         }
 
-        /* Buttons */
-        button {
-            margin-top: 20px;
-            padding: 12px 18px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            background-color: #00c853;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0px 4px 8px rgba(0, 200, 83, 0.3);
-        }
-
-        button:hover {
-            background-color: #00a045;
-        }
-
         #generate {
             display: none;
             margin: 20px auto;
-            display: block;
         }
     </style>
 </head>
 <body>
 
     <h1>MultiTwitch Live Channel Selector</h1>
-	
-	<button id="generate">Generate MultiTwitch Link</button>
     <div id="channelList"></div>
+    <button id="generate" style="display:none;">Generate MultiTwitch Link</button>
 
     <script>
-        const accessToken = "rg0t0o2tssc3jfuiiw77okiy1n8d91"; // Replace with your token
-        const clientId = "8nsznpvw3o37hr4sbfh5gn6wxdymre"; // Replace with your client ID
-        const userId = "218524506"; // Replace with your Twitch user ID
+        const clientId = "8nsznpvw3o37hr4sbfh5gn6wxdymre"; // Replace with your Twitch Client ID
+        const redirectUri = "http://localhost"; // Redirects back to this page
+		const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`;
+		
+        let accessToken = localStorage.getItem("twitch_access_token") || null;
+        let userId = null;
+        let selectedChannels = new Set();
 
-        let selectedChannels = new Set(); // Store selected channels
+        function authenticateTwitch() {
+            window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`;
+        }
+
+        function checkTwitchLogin() {
+			const hash = window.location.hash;
+		
+			// Check if the URL contains an access token
+			if (hash.includes("access_token")) {
+				accessToken = new URLSearchParams(hash.substring(1)).get("access_token");
+		
+				// Store the token so the user stays logged in
+				localStorage.setItem("twitch_access_token", accessToken);
+		
+				// Remove the token from the URL for a cleaner experience
+				window.history.replaceState({}, document.title, window.location.pathname);
+		
+				// Now fetch the user ID
+				fetchUserId();
+			} else if (accessToken) {
+				// If token is already stored, fetch user ID directly
+				fetchUserId();
+			} else {
+				// If no token is found, redirect to Twitch login
+				authenticateTwitch();
+			}
+		}
+
+
+        async function fetchUserId() {
+            try {
+                const response = await fetch("https://api.twitch.tv/helix/users", {
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`,
+                        "Client-Id": clientId
+                    }
+                });
+                const data = await response.json();
+                if (data.data && data.data.length > 0) {
+                    userId = data.data[0].id;
+                    fetchFollowedChannels();
+                } else {
+                    throw new Error("User data not found.");
+                }
+            } catch (error) {
+                console.error("Error fetching user ID:", error);
+                localStorage.removeItem("twitch_access_token");
+                authenticateTwitch(); // Retry login if the token is invalid
+            }
+        }
 
         async function fetchFollowedChannels() {
-            const response = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}&first=100`, {
-                headers: {
-                    "Authorization": `Bearer ${accessToken}`,
-                    "Client-Id": clientId
-                }
-            });
-            const data = await response.json();
-            const channelIds = data.data.map(channel => channel.broadcaster_id);
-            checkLiveChannels(channelIds);
+            try {
+                const response = await fetch(`https://api.twitch.tv/helix/channels/followed?user_id=${userId}&first=100`, {
+                    headers: {
+                        "Authorization": `Bearer ${accessToken}`,
+                        "Client-Id": clientId
+                    }
+                });
+                const data = await response.json();
+                const channelIds = data.data.map(channel => channel.broadcaster_id);
+                checkLiveChannels(channelIds);
+            } catch (error) {
+                console.error("Error fetching followed channels:", error);
+            }
         }
 
         async function checkLiveChannels(channelIds) {
@@ -162,38 +186,29 @@
             liveChannelsData.forEach(stream => {
                 const container = document.createElement("div");
                 container.classList.add("channel-container");
-                container.dataset.channel = stream.user_login; // Store channel name
-
-                // Click event to toggle selection
+                container.dataset.channel = stream.user_login;
                 container.addEventListener("click", () => toggleSelection(container, stream.user_login));
 
-                // Thumbnail
                 const thumbnail = document.createElement("img");
                 thumbnail.classList.add("stream-thumbnail");
                 thumbnail.src = stream.thumbnail_url.replace("{width}", "160").replace("{height}", "90"); 
                 thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
 
-                // Channel Info Container
                 const infoContainer = document.createElement("div");
                 infoContainer.classList.add("channel-info");
 
-                // Channel Name
                 const channelName = document.createElement("p");
                 channelName.classList.add("channel-name");
                 channelName.textContent = stream.user_login;
 
-                // Stream Title
                 const title = document.createElement("p");
                 title.classList.add("stream-title");
                 title.textContent = stream.title;
 
-                // Append elements properly
                 infoContainer.appendChild(channelName);
                 infoContainer.appendChild(title);
-
                 container.appendChild(thumbnail);
                 container.appendChild(infoContainer);
-
                 channelListDiv.appendChild(container);
             });
 
@@ -211,21 +226,16 @@
         }
 
         document.getElementById("generate").addEventListener("click", () => {
-			if (selectedChannels.size > 0) {
-				window.open(`https://www.multitwitch.tv/${Array.from(selectedChannels).join("/")}`, "_blank");
-		
-				// Unselect all channels after clicking the button
-				selectedChannels.clear(); // Empty the selected channels list
-				document.querySelectorAll(".channel-container").forEach(container => {
-					container.classList.remove("selected");
-				});
-			} else {
-				alert("Select at least one channel.");
-			}
-		});
+            if (selectedChannels.size > 0) {
+                window.open(`https://www.multitwitch.tv/${Array.from(selectedChannels).join("/")}`, "_blank");
+                selectedChannels.clear();
+                document.querySelectorAll(".channel-container").forEach(container => container.classList.remove("selected"));
+            } else {
+                alert("Select at least one channel.");
+            }
+        });
 
-
-        fetchFollowedChannels();
+        checkTwitchLogin(); // 🚀 Run login check on page load
     </script>
 
 </body>
