@@ -88,7 +88,7 @@
 
     <script>
         const clientId = "8nsznpvw3o37hr4sbfh5gn6wxdymre"; // Replace with your Twitch Client ID
-        const redirectUri = "http://localhost"; // Redirects back to this page
+        const redirectUri = "https://blake-goofy.github.io/MultiTwitchSelector/"; // Redirects back to this page
 		const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`;
 		
         let accessToken = localStorage.getItem("twitch_access_token") || null;
@@ -235,7 +235,7 @@
             }
         });
 
-        checkTwitchLogin(); // Run login check on page load
+        checkTwitchLogin();
     </script>
 
 </body>
