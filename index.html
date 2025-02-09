@@ -75,21 +75,31 @@
         }
 
         #generate {
-            display: none;
-            margin: 20px auto;
-        }
+			display: block;
+			background-color: #007bff; /* Blue color */
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			font-size: 16px;
+			cursor: pointer;
+		}
+		
+		#generate:hover {
+			background-color: #0056b3;
+		}
     </style>
 </head>
 <body>
 
     <h1>MultiTwitch Live Channel Selector</h1>
-    <div id="channelList"></div>
+    
     <button id="generate" style="display:none;">Generate MultiTwitch Link</button>
+	<div id="channelList"></div>
 
     <script>
         const clientId = "8nsznpvw3o37hr4sbfh5gn6wxdymre"; // Replace with your Twitch Client ID
         const redirectUri = "https://blake-goofy.github.io/MultiTwitchSelector/"; // Redirects back to this page
-		const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`;
 		
         let accessToken = localStorage.getItem("twitch_access_token") || null;
         let userId = null;
