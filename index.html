@@ -11,6 +11,7 @@
             font-family: 'Arial', sans-serif;
             text-align: center;
             padding: 20px;
+			overflow: hidden;
         }
 
         h1 {
@@ -26,7 +27,8 @@
             background: #1e1e1e;
             padding: 15px;
             border-radius: 10px;
-			max-height: 800px;
+			max-height: 90vh;
+			height: auto;
 			width: 500px;
 			overflow-y: auto;
 			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
@@ -267,7 +269,7 @@
 					
 					// Show channel name on click
 					document.getElementById("profileContainer").addEventListener("click", () => {
-						alert(`Logged in as: ${user.display_name}`);
+						showPopup(`Logged in as: ${user.display_name}`);
 					});
 		
 					fetchFollowedChannels();
@@ -384,11 +386,11 @@
 		});
 
 		document.getElementById("helpBtn").addEventListener("click", () => {
-			alert(`How to Use MultiTwitch Select:
-		• Select multiple live channels by clicking on them.
-		• Double-click a channel to open it directly in MultiTwitch.
-		• Click "Generate MultiTwitch Link" to open selected channels.
-		• Contact me at blake13blake@gmail.com`);
+			showPopup(`How to Use MultiTwitch Select:
+		> Select multiple live channels by clicking on them.
+		> Double-click a channel to open it directly in MultiTwitch.
+		> Click "Generate MultiTwitch Link" to open selected channels.
+		> Contact me at blake13blake@gmail.com`);
 		});
 		
         checkTwitchLogin();
