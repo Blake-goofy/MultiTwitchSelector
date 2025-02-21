@@ -207,45 +207,50 @@
         }
 
         function displayLiveChannels(liveChannelsData) {
-            const channelListDiv = document.getElementById("channelList");
-            //channelListDiv.innerHTML = "<h3>Live Channels</h3>";
-
-            if (liveChannelsData.length === 0) {
-                channelListDiv.innerHTML += "<p>No live channels</p>";
-                return;
-            }
-
-            liveChannelsData.forEach(stream => {
-                const container = document.createElement("div");
-                container.classList.add("channel-container");
-                container.dataset.channel = stream.user_login;
-                container.addEventListener("click", () => toggleSelection(container, stream.user_login));
-
-                const thumbnail = document.createElement("img");
-                thumbnail.classList.add("stream-thumbnail");
-                thumbnail.src = stream.thumbnail_url.replace("{width}", "160").replace("{height}", "90"); 
-                thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
-
-                const infoContainer = document.createElement("div");
-                infoContainer.classList.add("channel-info");
-
-                const channelName = document.createElement("p");
-                channelName.classList.add("channel-name");
-                channelName.textContent = stream.user_login;
-
-                const title = document.createElement("p");
-                title.classList.add("stream-title");
-                title.textContent = stream.title;
-
-                infoContainer.appendChild(channelName);
-                infoContainer.appendChild(title);
-                container.appendChild(thumbnail);
-                container.appendChild(infoContainer);
-                channelListDiv.appendChild(container);
-            });
-
-            document.getElementById("generate").style.display = "block";
-        }
+			const channelListDiv = document.getElementById("channelList");
+			// channelListDiv.innerHTML = "<h3>Live Channels</h3>";
+		
+			if (liveChannelsData.length === 0) {
+				channelListDiv.innerHTML += "<p>No live channels</p>";
+				return;
+			}
+		
+			liveChannelsData.forEach(stream => {
+				const container = document.createElement("div");
+				container.classList.add("channel-container");
+				container.dataset.channel = stream.user_login;
+				container.addEventListener("click", () => toggleSelection(container, stream.user_login));
+		
+				// Double-click event to open MultiTwitch with that channel
+				container.addEventListener("dblclick", () => {
+					window.open(`https://www.multitwitch.tv/${stream.user_login}`, "_blank");
+				});
+		
+				const thumbnail = document.createElement("img");
+				thumbnail.classList.add("stream-thumbnail");
+				thumbnail.src = stream.thumbnail_url.replace("{width}", "160").replace("{height}", "90"); 
+				thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
+		
+				const infoContainer = document.createElement("div");
+				infoContainer.classList.add("channel-info");
+		
+				const channelName = document.createElement("p");
+				channelName.classList.add("channel-name");
+				channelName.textContent = stream.user_login;
+		
+				const title = document.createElement("p");
+				title.classList.add("stream-title");
+				title.textContent = stream.title;
+		
+				infoContainer.appendChild(channelName);
+				infoContainer.appendChild(title);
+				container.appendChild(thumbnail);
+				container.appendChild(infoContainer);
+				channelListDiv.appendChild(container);
+			});
+		
+			document.getElementById("generate").style.display = "block";
+		}
 
         function toggleSelection(container, channel) {
             if (selectedChannels.has(channel)) {
