@@ -79,14 +79,11 @@
         }
 		.popup {
 			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+			right: 20px;
+			width: 300px;
 			display: none;
-			justify-content: center;
-			align-items: center;
+			justify-content: right;
+			align-items: left;
 		}
 		
 		.popup-content {
@@ -156,11 +153,10 @@
 			object-fit: cover;
 		}
 		
-		/* Help Button */
 		#helpBtn {
 			position: absolute;
-			bottom: 10px;
-			right: 10px;
+			top: 10px;
+			right: 60px;
 			width: 40px;
 			height: 40px;
 			font-size: 20px;
@@ -238,9 +234,13 @@
 		}
 		
 		// Function to Show Pop-up with Custom Text
-		function showPopup(message) {
-			popupText.textContent = message;
-			popup.style.display = "flex"; // Show the pop-up
+		function togglePopup(message) {
+			if (popup.style.display === "flex") {
+				popup.style.display = "none"; // Hide the pop-up if it's already visible
+			} else {
+				popupText.textContent = message;
+				popup.style.display = "flex"; // Show the pop-up
+			}
 		}
 		
 		// Function to Hide Pop-up When Clicking Outside
@@ -386,10 +386,9 @@
 		});
 
 		document.getElementById("helpBtn").addEventListener("click", () => {
-			showPopup(`How to Use MultiTwitch Select:
-		> Select multiple live channels by clicking on them.
-		> Double-click a channel to open it directly in MultiTwitch.
-		> Click "Generate MultiTwitch Link" to open selected channels.
+			showPopup(`> Select multiple live channels by clicking on them./n
+		> Double-click a channel to open it directly in MultiTwitch./n
+		> Click "Generate MultiTwitch Link" to open selected channels./n
 		> Contact me at blake13blake@gmail.com`);
 		});
 		
