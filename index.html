@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MultiTwitch Live Selector</title>
     <style>
-        /* Dark Theme */
         body {
             background-color: #121212;
             color: #e0e0e0;
@@ -27,7 +26,10 @@
             background: #1e1e1e;
             padding: 15px;
             border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+			max-height: 800px;
+			width: 500px;
+			overflow-y: auto;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .channel-container {
@@ -84,11 +86,30 @@
 		font-size: 16px;
 		cursor: pointer;
 		margin: 20px auto;
-	}
+		}
+			
+		#generate:hover {
+			background-color: #00af48;
+		}
 		
-	#generate:hover {
-		background-color: #00af48;
-	}
+		#channelList::-webkit-scrollbar {
+			width: 10px;
+		}
+		
+		#channelList::-webkit-scrollbar-track {
+			background: #252525;
+			border-radius: 10px;
+		}
+		
+		#channelList::-webkit-scrollbar-thumb {
+			background: #D9D9D9;
+			border-radius: 10px;
+			transition: background 0.3s;
+		}
+		
+		#channelList::-webkit-scrollbar-thumb:hover {
+			background: #BFBFBF;
+		}
     </style>
 </head>
 <body>
@@ -99,7 +120,7 @@
 	<div id="channelList"></div>
 
     <script>
-        const clientId = "8nsznpvw3o37hr4sbfh5gn6wxdymre"; // Replace with your Twitch Client ID
+        const clientId = "8nsznpvw3o37hr4sbfh5gn6wxdymre"; // Twitch Client ID
         const redirectUri = "https://blake-goofy.github.io/MultiTwitchSelector/"; // Redirects back to this page
 		
         let accessToken = localStorage.getItem("twitch_access_token") || null;
@@ -187,7 +208,7 @@
 
         function displayLiveChannels(liveChannelsData) {
             const channelListDiv = document.getElementById("channelList");
-            channelListDiv.innerHTML = "<h3>Live Channels</h3>";
+            //channelListDiv.innerHTML = "<h3>Live Channels</h3>";
 
             if (liveChannelsData.length === 0) {
                 channelListDiv.innerHTML += "<p>No live channels</p>";
