@@ -269,7 +269,7 @@
 					
 					// Show channel name on click
 					document.getElementById("profileContainer").addEventListener("click", () => {
-						showPopup(`Logged in as: ${user.display_name}`);
+						togglePopup(`Logged in as: ${user.display_name}`);
 					});
 		
 					fetchFollowedChannels();
@@ -386,12 +386,12 @@
 		});
 
 		document.getElementById("helpBtn").addEventListener("click", () => {
-			showPopup(`> Select multiple live channels by clicking on them./n
-		> Double-click a channel to open it directly in MultiTwitch./n
-		> Click "Generate MultiTwitch Link" to open selected channels./n
-		> Contact me at blake13blake@gmail.com`);
+			togglePopup(`> Select multiple live channels by clicking on them.<br>
+			> Double-click a channel to open it directly in MultiTwitch.<br>
+			> Click "Generate MultiTwitch Link" to open selected channels.<br>
+			> Contact me at blake13blake@gmail.com`);
 		});
-		
+
         checkTwitchLogin();
     </script>
 
