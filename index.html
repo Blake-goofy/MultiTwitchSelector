@@ -223,7 +223,7 @@
 		
 				// Double-click event to open MultiTwitch with that channel
 				container.addEventListener("dblclick", () => {
-					window.open(`https://www.multitwitch.tv/${stream.user_login}`, "_blank");
+					window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
 				});
 		
 				const thumbnail = document.createElement("img");
@@ -264,7 +264,7 @@
 
         document.getElementById("generate").addEventListener("click", () => {
             if (selectedChannels.size > 0) {
-                window.open(`https://www.multitwitch.tv/${Array.from(selectedChannels).join("/")}`, "_blank");
+                window.open(`https://www.multitwitch.tv/${Array.from(selectedChannels).join("/")}?darkmode`, "_blank");
                 selectedChannels.clear();
                 document.querySelectorAll(".channel-container").forEach(container => container.classList.remove("selected"));
             } else {
