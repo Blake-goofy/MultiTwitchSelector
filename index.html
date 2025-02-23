@@ -27,7 +27,7 @@
             background: #1e1e1e;
             padding: 15px;
             border-radius: 10px;
-			max-height: 90vh;
+			max-height: 75vh;
 			height: auto;
 			width: 500px;
 			overflow-y: auto;
@@ -238,7 +238,7 @@
 			if (popup.style.display === "flex") {
 				popup.style.display = "none"; // Hide the pop-up if it's already visible
 			} else {
-				popupText.textContent = message;
+				popupText.innerHTML  = message;
 				popup.style.display = "flex"; // Show the pop-up
 			}
 		}
