@@ -80,7 +80,7 @@
 		.popup {
 			position: fixed;
 			right: 20px;
-			width: 300px;
+			width: 600px;
 			display: none;
 			justify-content: right;
 			align-items: left;
@@ -92,8 +92,8 @@
 			padding: 15px;
 			border-radius: 8px;
 			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-			max-width: 300px;
-			text-align: center;
+			max-width: 600px;
+			text-align: left;
 		}
 
         #generate {
@@ -386,7 +386,8 @@
 		});
 
 		document.getElementById("helpBtn").addEventListener("click", () => {
-			togglePopup(`> Select multiple live channels by clicking on them.<br>
+			togglePopup(`<strong>About</strong><br><br>
+			> Select multiple live channels by clicking on them.<br>
 			> Double-click a channel to open it directly in MultiTwitch.<br>
 			> Click "Generate MultiTwitch Link" to open selected channels.<br>
 			> Contact me at blake13blake@gmail.com`);
