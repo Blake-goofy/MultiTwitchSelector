@@ -77,6 +77,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .stream-uptime {
+            font-size: 12px;
+            color: #888888;
+            margin-top: 4px;
+        }
 		.popup {
 			position: fixed;
 			right: 20px;
@@ -89,11 +95,13 @@
 		.popup-content {
 			background: #1e1e1e;
 			color: #e0e0e0;
-			padding: 15px;
+			padding: 20px;
 			border-radius: 8px;
 			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 			max-width: 600px;
 			text-align: left;
+			font-size: 16px;
+			line-height: 1.6;
 		}
 
         #generate {
@@ -312,6 +320,15 @@
             displayLiveChannels(data.data);
         }
 
+        function calculateUptime(startedAt) {
+            const start = new Date(startedAt);
+            const now = new Date();
+            const diffMs = now - start;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            return `${diffHours}h ${diffMinutes}m`;
+        }
+
         function displayLiveChannels(liveChannelsData) {
 			const channelListDiv = document.getElementById("channelList");
 			// channelListDiv.innerHTML = "<h3>Live Channels</h3>";
@@ -348,8 +365,13 @@
 				title.classList.add("stream-title");
 				title.textContent = stream.title;
 		
+				const uptime = document.createElement("p");
+				uptime.classList.add("stream-uptime");
+				uptime.textContent = `Live for ${calculateUptime(stream.started_at)}`;
+		
 				infoContainer.appendChild(channelName);
 				infoContainer.appendChild(title);
+				infoContainer.appendChild(uptime);
 				container.appendChild(thumbnail);
 				container.appendChild(infoContainer);
 				channelListDiv.appendChild(container);
@@ -386,11 +408,11 @@
 		});
 
 		document.getElementById("helpBtn").addEventListener("click", () => {
-			togglePopup(`<strong>About</strong><br><br>
-			> Select multiple live channels by clicking on them.<br>
-			> Double-click a channel to open it directly in MultiTwitch.<br>
-			> Click "Generate MultiTwitch Link" to open selected channels.<br>
-			> Contact me at blake13blake@gmail.com`);
+			togglePopup(`<strong>About MultiTwitch Live Selector</strong><br><br>
+			• Select multiple live channels by clicking on them.<br>
+			• Click "Generate MultiTwitch Link" to open selected channels in a new tab.<br>
+			• Double-click a channel to open it directly in MultiTwitch.<br><br>
+			For support or feedback, contact: blake13blake@gmail.com`);
 		});
 
         checkTwitchLogin();
