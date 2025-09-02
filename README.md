@@ -2,6 +2,8 @@
 
 A web site allows Twitch users to select multiple live channels from their followed list and generate a MultiTwitch link to watch them simultaneously.
 
+![streams](streams.png)
+
 ## Features
 
 - **Twitch Authentication**: Log in with your Twitch account to access your followed channels.
