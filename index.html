@@ -347,6 +347,10 @@
 		
 		// Replace togglePopup with anchored version
 		function togglePopup(anchorEl, html, opts={}) {
+            if (!anchorEl || typeof anchorEl.getBoundingClientRect !== 'function') {
+                console.error('Invalid anchorEl passed to togglePopup:', anchorEl);
+                return;
+            }
             const popup = document.getElementById('popup');
             const popupText = document.getElementById('popupText');
             const contentEl = popup.querySelector('.popup-content');
@@ -548,6 +552,44 @@
         });
 
         checkTwitchLogin();
+
+        // Enhance profile popup after user data retrieval by wrapping existing fetchUserId
+        (function(){
+            const originalFetchUserId = fetchUserId;
+            fetchUserId = async function(){
+                try {
+                    const response = await fetch("https://api.twitch.tv/helix/users", { headers: { "Authorization": `Bearer ${accessToken}`, "Client-Id": clientId } });
+                    const data = await response.json();
+                    if (data.data && data.data.length > 0) {
+                        userId = data.data[0].id;
+                        const user = data.data[0];
+                        const profilePic = document.getElementById("profilePic");
+                        profilePic.src = user.profile_image_url;
+                        const profileContainer = document.getElementById("profileContainer");
+                        profileContainer.addEventListener("click", function() {
+                            togglePopup(this, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                            const btn = document.getElementById('logoutBtn');
+                            if(btn){ btn.onclick = logout; }
+                        });
+                        fetchFollowedChannels();
+                    } else { throw new Error("User data not found."); }
+                } catch(err){
+                    console.error("Error fetching user ID:", err);
+                    localStorage.removeItem('twitch_access_token');
+                    authenticateTwitch();
+                }
+            }
+        })();
+
+        // Update help button listener to anchor properly
+        (function(){
+            const helpBtn = document.getElementById('helpBtn');
+            helpBtn.replaceWith(helpBtn.cloneNode(true));
+            const newHelpBtn = document.getElementById('helpBtn');
+            newHelpBtn.addEventListener('click', function() {
+                togglePopup(this, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li></ul><div style="text-align:center; color:#888;">GitHub README <a href="https://github.com/Blake-goofy/MultiTwitchSelector#readme" target="_blank">here</a></div><div style="text-align:center; color:#888;">blake13blake@gmail.com</div>`, {help:true});
+            });
+        })();
     </script>
 
 </body>
