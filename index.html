@@ -223,32 +223,54 @@
 
         .top-bar { 
             background:#18181b; 
-            padding:10px 22px; 
-            border-radius:12px; 
-            position:relative; 
+            width:100%;
+            padding:10px 0;
+            margin:0;
+            border-radius:0;
+            position:static;
+        }
+        .top-bar-inner {
+            max-width:none;
+            margin:0;
             display:flex;
             align-items:center;
             justify-content:space-between;
+            padding:0 22px;
         }
         .nav-left { display:flex; align-items:center; gap:18px; }
-        .nav-center { position:absolute; left:50%; transform:translateX(-50%); pointer-events:none; }
+        .nav-center {
+            flex:1;
+            text-align:center;
+            position:static;
+            transform:none;
+            pointer-events:auto;
+        }
         .nav-center h1 { pointer-events:auto; }
         .nav-right { display:flex; align-items:center; gap:14px; }
         h1 { margin:0; font-size:28px; }
         .twitch-logo { width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .2s ease; }
         .twitch-logo:hover { transform:scale(1.08) rotate(-2deg); }
         .twitch-logo svg { display:block; }
-        .popup-content { padding:6px 10px 8px; }
-        .popup-content.compact { white-space:normal; }
-        .popup-content ul { list-style:none; padding:0; margin:4px 0 2px; }
-        .popup-content ul li { padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px; }
-        .popup-content ul li:last-child { border-bottom:none; }
-        /* Smaller channel containers */
-        .channel-container { padding:6px 10px; gap:14px; }
-        .stream-thumbnail { width:210px; height:118px; }
-        .channel-name { font-size:18px; margin-bottom:1px; }
-        .stream-title { font-size:13px; }
-        .stream-uptime { margin-top:2px; }
+        .popup-content {
+            text-align:left;
+        }
+        .popup-content ul {
+            list-style:disc;
+            padding-left:20px;
+            margin:4px 0 2px;
+        }
+        .popup-content ul li {
+            padding:4px 0;
+            border-bottom:none;
+        }
+        .popup-content ul li:nth-last-child(1),
+        .popup-content ul li:nth-last-child(2) {
+            color:#888;
+        }
+        #helpBtn,
+        #profileContainer {
+            position:static;
+        }
     </style>
 </head>
 <body>
@@ -557,7 +579,7 @@
             helpBtn.replaceWith(helpBtn.cloneNode(true));
             const newHelpBtn = document.getElementById('helpBtn');
             newHelpBtn.addEventListener('click', () => {
-                togglePopup(newHelpBtn, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li><li>Logout via profile popup</li><li>Support: blake13blake@gmail.com</li></ul>` , {compact:true});
+                togglePopup(newHelpBtn, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li><li>Logout via profile popup</li><li>Support: blake13blake@gmail.com</li></ul>`);
             });
         })();
 
