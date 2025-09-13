@@ -561,7 +561,12 @@
             const originalFetchUserId = fetchUserId;
             fetchUserId = async function(){
                 try {
-                    const response = await fetch("https://api.twitch.tv/helix/users", { headers: { "Authorization": `Bearer ${accessToken}", "Client-Id": clientId } });
+                    const response = await fetch("https://api.twitch.tv/helix/users", { 
+                        headers: { 
+                            "Authorization": `Bearer ${accessToken}`, 
+                            "Client-Id": clientId 
+                        } 
+                    });
                     const data = await response.json();
                     if (data.data && data.data.length > 0) {
                         userId = data.data[0].id;
@@ -572,7 +577,7 @@
                         profileContainer.onclick = function(e) {
                             console.log('Profile icon clicked, e.currentTarget:', e.currentTarget, 'typeof:', typeof e.currentTarget);
                             e.preventDefault();
-                            togglePopup(e.currentTarget, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                            togglePopup(profileContainer, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
                             const btn = document.getElementById('logoutBtn');
                             if(btn){ btn.onclick = logout; }
                         };
