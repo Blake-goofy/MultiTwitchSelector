@@ -349,6 +349,7 @@
 		
 		// Replace togglePopup with anchored version
 		function togglePopup(anchorEl, html, opts={}) {
+            console.log('togglePopup called with anchorEl:', anchorEl, 'typeof:', typeof anchorEl, 'getBoundingClientRect:', anchorEl && anchorEl.getBoundingClientRect);
             if (!anchorEl || typeof anchorEl.getBoundingClientRect !== 'function') {
                 console.error('Invalid anchorEl passed to togglePopup:', anchorEl);
                 return;
@@ -560,7 +561,7 @@
             const originalFetchUserId = fetchUserId;
             fetchUserId = async function(){
                 try {
-                    const response = await fetch("https://api.twitch.tv/helix/users", { headers: { "Authorization": `Bearer ${accessToken}`, "Client-Id": clientId } });
+                    const response = await fetch("https://api.twitch.tv/helix/users", { headers: { "Authorization": `Bearer ${accessToken}", "Client-Id": clientId } });
                     const data = await response.json();
                     if (data.data && data.data.length > 0) {
                         userId = data.data[0].id;
@@ -569,6 +570,7 @@
                         profilePic.src = user.profile_image_url;
                         const profileContainer = document.getElementById("profileContainer");
                         profileContainer.onclick = function(e) {
+                            console.log('Profile icon clicked, e.currentTarget:', e.currentTarget, 'typeof:', typeof e.currentTarget);
                             e.preventDefault();
                             togglePopup(e.currentTarget, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
                             const btn = document.getElementById('logoutBtn');
@@ -582,16 +584,6 @@
                     authenticateTwitch();
                 }
             }
-        })();
-
-        // Update help button listener to anchor properly
-        (function(){
-            const helpBtn = document.getElementById('helpBtn');
-            helpBtn.replaceWith(helpBtn.cloneNode(true));
-            const newHelpBtn = document.getElementById('helpBtn');
-            newHelpBtn.addEventListener('click', function() {
-                togglePopup(this, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li></ul><div style="text-align:center; color:#888;">GitHub README <a href="https://github.com/Blake-goofy/MultiTwitchSelector#readme" target="_blank">here</a></div><div style="text-align:center; color:#888;">blake13blake@gmail.com</div>`, {help:true});
-            });
         })();
 
         // Restore middle-click open in new tab for channel containers
@@ -611,6 +603,7 @@
                     window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
                 });
                 container.addEventListener("auxclick", function(e) {
+                    console.log('auxclick event:', e, 'on', container, 'button:', e.button);
                     if (e.button === 1) {
                         e.preventDefault();
                         window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
@@ -640,6 +633,42 @@
             });
             document.getElementById("generate").style.display = "block";
             document.getElementById("generate").disabled = selectedChannels.size === 0;
+        }
+
+        // Add debug log to togglePopup
+        function togglePopup(anchorEl, html, opts={}) {
+            console.log('togglePopup called with anchorEl:', anchorEl, 'typeof:', typeof anchorEl, 'getBoundingClientRect:', anchorEl && anchorEl.getBoundingClientRect);
+            if (!anchorEl || typeof anchorEl.getBoundingClientRect !== 'function') {
+                console.error('Invalid anchorEl passed to togglePopup:', anchorEl);
+                return;
+            }
+            const popup = document.getElementById('popup');
+            const popupText = document.getElementById('popupText');
+            const contentEl = popup.querySelector('.popup-content');
+            contentEl.classList.remove('compact','help-wide');
+            if (popup.dataset.anchorId === anchorEl.id && popup.style.display === 'block') {
+                popup.style.display = 'none';
+                popup.dataset.anchorId = '';
+                return;
+            }
+            popupText.innerHTML = html;
+            if(opts.compact) contentEl.classList.add('compact');
+            if(opts.help) contentEl.classList.add('help-wide','compact');
+            popup.style.display = 'block';
+            popup.dataset.anchorId = anchorEl.id;
+            const rect = anchorEl.getBoundingClientRect();
+            const scrollY = window.scrollY || document.documentElement.scrollTop;
+            const scrollX = window.scrollX || document.documentElement.scrollLeft;
+            const desiredCenter = rect.left + rect.width/2 + scrollX;
+            const popupWidth = popup.offsetWidth || 360;
+            const left = desiredCenter - popupWidth/2;
+            const minLeft = scrollX + 20;
+            const maxLeft = scrollX + window.innerWidth - popupWidth - 20;
+            const finalLeft = Math.min(Math.max(left, minLeft), maxLeft);
+            popup.style.left = finalLeft + 'px';
+            popup.style.top = (rect.bottom + 6 + scrollY) + 'px';
+            const arrowPos = (desiredCenter - finalLeft) - 6;
+            contentEl.style.setProperty('--arrow-left', arrowPos + 'px');
         }
     </script>
 
