@@ -16,9 +16,28 @@
         }
 
         h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #ffffff;
+            font-size: 42px;
+            margin: 30px 0 25px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg,#66ffa6,#00c853,#18ffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        h1:after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -10px;
+            width: 260px;
+            height: 3px;
+            background: linear-gradient(90deg,#00c853,#18ffff,#00c853);
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(0,200,83,0.4);
         }
 
         #channelList {
@@ -39,8 +58,9 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 12px;
-            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding: 5px;
             background: #252525;
             border-radius: 8px;
             cursor: pointer;
@@ -86,37 +106,52 @@
             color: #888888;
             margin-top: 4px;
         }
-		.popup {
-			position: fixed;
-			right: 20px;
-			width: 600px;
-			display: none;
-			justify-content: right;
-			align-items: left;
-		}
-		
-		.popup-content {
-			background: #1e1e1e;
-			color: #e0e0e0;
-			padding: 20px;
-			border-radius: 8px;
-			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-			max-width: 600px;
-			text-align: left;
-			font-size: 16px;
-			line-height: 1.6;
-		}
-
+		.popup { /* repurpose as anchored tooltip container */
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            z-index: 999;
+            width: auto;
+            max-width: 360px;
+        }
+        .popup-content {
+            background: #1e1e1e;
+            border: 1px solid #2c2c2c;
+            color: #e0e0e0;
+            padding: 14px 16px 16px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px -4px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+            font-size: 14px;
+            line-height: 1.5;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            position: relative;
+            animation: popIn .16s ease;
+        }
+        .popup-content:before { /* small arrow */
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: 22px;
+            width: 12px;
+            height: 12px;
+            background: inherit;
+            transform: rotate(45deg);
+            border-top: 1px solid #2c2c2c;
+            border-left: 1px solid #2c2c2c;
+        }
+        @keyframes popIn { from { opacity:0; transform:translateY(-4px) scale(.96);} to { opacity:1; transform:translateY(0) scale(1);} }
         #generate {
-		display: none;
-		background-color: #00c853;
-		color: white;
-		padding: 10px 20px;
-		border: none;
-		border-radius: 5px;
-		font-size: 16px;
-		cursor: pointer;
-		margin: 20px auto;
+			display: none;
+			background-color: #00c853;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			font-size: 16px;
+			cursor: pointer;
+			margin: 20px auto;
 		}
 			
 		#generate:hover {
@@ -185,7 +220,19 @@
 			background-color: #00af48;
 			transform: scale(1.1);
 		}
-
+		#logoutBtn {
+            background:#272727;
+            color:#eee;
+            border:1px solid #3a3a3a;
+            padding:4px 10px;
+            border-radius:6px;
+            font-size:12px;
+            cursor:pointer;
+            margin-left:10px;
+            transition:background .2s,border-color .2s,color .2s;
+        }
+        #logoutBtn:hover { background:#00c853; color:#000; border-color:#00c853; }
+        .profile-row { display:flex; align-items:center; font-size:15px; font-weight:600; }
     </style>
 </head>
 <body>
@@ -244,22 +291,35 @@
 			}
 		}
 		
-		// Function to Show Pop-up with Custom Text
-		function togglePopup(message) {
-			if (popup.style.display === "flex") {
-				popup.style.display = "none"; // Hide the pop-up if it's already visible
-			} else {
-				popupText.innerHTML  = message;
-				popup.style.display = "flex"; // Show the pop-up
-			}
-		}
-		
-		// Function to Hide Pop-up When Clicking Outside
-		popup.addEventListener("click", (event) => {
-			if (event.target === popup) {
-				popup.style.display = "none";
-			}
-		});
+		// Replace togglePopup with anchored version
+		function togglePopup(anchorEl, html) {
+            const popup = document.getElementById('popup');
+            const popupText = document.getElementById('popupText');
+            if (popup.dataset.anchorId === anchorEl.id && popup.style.display === 'block') {
+                popup.style.display = 'none';
+                popup.dataset.anchorId = '';
+                return;
+            }
+            popupText.innerHTML = html;
+            popup.style.display = 'block';
+            popup.dataset.anchorId = anchorEl.id;
+            // position
+            const rect = anchorEl.getBoundingClientRect();
+            const scrollY = window.scrollY || document.documentElement.scrollTop;
+            const scrollX = window.scrollX || document.documentElement.scrollLeft;
+            popup.style.top = (rect.bottom + 8 + scrollY) + 'px';
+            popup.style.left = (rect.left + scrollX) + 'px';
+        }
+
+        // Global click to close if clicking outside
+        document.addEventListener('click', (e) => {
+            const popup = document.getElementById('popup');
+            if (!popup.contains(e.target) && e.target.id !== 'helpBtn' && !document.getElementById('profileContainer').contains(e.target)) {
+                popup.style.display = 'none';
+                popup.dataset.anchorId='';
+            }
+        });
+        window.addEventListener('resize', () => { const popup = document.getElementById('popup'); if(popup.style.display==='block'){ popup.style.display='none'; }});
 
         async function fetchUserId() {
 			try {
@@ -335,43 +395,50 @@
         function displayLiveChannels(liveChannelsData) {
 			const channelListDiv = document.getElementById("channelList");
 			// channelListDiv.innerHTML = "<h3>Live Channels</h3>";
-		
+			
 			if (liveChannelsData.length === 0) {
 				channelListDiv.innerHTML += "<p>No live channels</p>";
 				return;
 			}
-		
+			
 			liveChannelsData.forEach(stream => {
 				const container = document.createElement("div");
 				container.classList.add("channel-container");
 				container.dataset.channel = stream.user_login;
 				container.addEventListener("click", () => toggleSelection(container, stream.user_login));
-		
+				
 				// Double-click event to open MultiTwitch with that channel
 				container.addEventListener("dblclick", () => {
 					window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
 				});
-		
+
+                // Middle-click (auxclick) event (button === 1)
+                container.addEventListener("auxclick", (e) => {
+                    if (e.button === 1) { // middle mouse
+                        window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
+                    }
+                });
+				
 				const thumbnail = document.createElement("img");
 				thumbnail.classList.add("stream-thumbnail");
 				thumbnail.src = stream.thumbnail_url.replace("{width}", "160").replace("{height}", "90"); 
 				thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
-		
+				
 				const infoContainer = document.createElement("div");
 				infoContainer.classList.add("channel-info");
-		
+				
 				const channelName = document.createElement("p");
 				channelName.classList.add("channel-name");
 				channelName.textContent = stream.user_login;
-		
+				
 				const title = document.createElement("p");
 				title.classList.add("stream-title");
 				title.textContent = stream.title;
-		
+				
 				const uptime = document.createElement("p");
 				uptime.classList.add("stream-uptime");
 				uptime.textContent = `Live for ${calculateUptime(stream.started_at)}`;
-		
+				
 				infoContainer.appendChild(channelName);
 				infoContainer.appendChild(title);
 				infoContainer.appendChild(uptime);
@@ -379,7 +446,7 @@
 				container.appendChild(infoContainer);
 				channelListDiv.appendChild(container);
 			});
-		
+			
 			document.getElementById("generate").style.display = "block";
 		}
 
@@ -410,13 +477,43 @@
 			}
 		});
 
-		document.getElementById("helpBtn").addEventListener("click", () => {
-			togglePopup(`<strong>About MultiTwitch Live Selector</strong><br><br>
-			• Select multiple live channels by clicking on them.<br>
-			• Click "Generate MultiTwitch Link" to open selected channels in a new tab.<br>
-			• Double-click a channel to open it directly in MultiTwitch.<br><br>
-			For support or feedback, contact: blake13blake@gmail.com`);
-		});
+		// Enhance profile popup after user data retrieval by wrapping existing fetchUserId
+        (function(){
+            const originalFetchUserId = fetchUserId;
+            fetchUserId = async function(){
+                try {
+                    const response = await fetch("https://api.twitch.tv/helix/users", { headers: { "Authorization": `Bearer ${accessToken}`, "Client-Id": clientId } });
+                    const data = await response.json();
+                    if (data.data && data.data.length > 0) {
+                        userId = data.data[0].id;
+                        const user = data.data[0];
+                        const profilePic = document.getElementById("profilePic");
+                        profilePic.src = user.profile_image_url;
+                        const profileContainer = document.getElementById("profileContainer");
+                        profileContainer.addEventListener("click", () => {
+                            togglePopup(profileContainer, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                            const btn = document.getElementById('logoutBtn');
+                            if(btn){ btn.onclick = logout; }
+                        });
+                        fetchFollowedChannels();
+                    } else { throw new Error("User data not found."); }
+                } catch(err){
+                    console.error("Error fetching user ID:", err);
+                    localStorage.removeItem('twitch_access_token');
+                    authenticateTwitch();
+                }
+            }
+        })();
+
+        // Update help button listener to anchor properly
+        (function(){
+            const helpBtn = document.getElementById('helpBtn');
+            helpBtn.replaceWith(helpBtn.cloneNode(true));
+            const newHelpBtn = document.getElementById('helpBtn');
+            newHelpBtn.addEventListener('click', ()=>{
+                togglePopup(newHelpBtn, `<strong>About MultiTwitch Live Selector</strong><br><br>• Select multiple live channels by clicking on them.<br>• Click \"Generate MultiTwitch Link\" to open selected channels in a new tab.<br>• Double-click a channel to open it directly in MultiTwitch.<br><br><span style='opacity:.7'>Support: blake13blake@gmail.com</span>`);
+            });
+        })();
 
         checkTwitchLogin();
     </script>
