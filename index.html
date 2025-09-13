@@ -465,7 +465,62 @@
         }
 
         function displayLiveChannels(liveChannelsData) {
-            // ...existing code...
+			const channelListDiv = document.getElementById("channelList");
+			// channelListDiv.innerHTML = "<h3>Live Channels</h3>";
+			
+			if (liveChannelsData.length === 0) {
+				channelListDiv.innerHTML += "<p>No live channels</p>";
+				return;
+			}
+			
+			liveChannelsData.forEach(stream => {
+				const container = document.createElement("div");
+				container.classList.add("channel-container");
+				container.dataset.channel = stream.user_login;
+				container.addEventListener("click", () => toggleSelection(container, stream.user_login));
+				
+				// Double-click event to open MultiTwitch with that channel
+				container.addEventListener("dblclick", () => {
+					window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
+				});
+
+                // Middle-click (auxclick) event (button === 1)
+                container.addEventListener("auxclick", (e) => {
+                    if (e.button === 1) { // middle mouse
+                        window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
+                    }
+                });
+				
+				const thumbnail = document.createElement("img");
+				thumbnail.classList.add("stream-thumbnail");
+				thumbnail.src = stream.thumbnail_url.replace("{width}", "160").replace("{height}", "90"); 
+				thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
+				
+				const infoContainer = document.createElement("div");
+				infoContainer.classList.add("channel-info");
+				
+				const channelName = document.createElement("p");
+				channelName.classList.add("channel-name");
+				channelName.textContent = stream.user_login;
+				
+				const title = document.createElement("p");
+				title.classList.add("stream-title");
+				title.textContent = stream.title;
+				
+				const uptime = document.createElement("p");
+				uptime.classList.add("stream-uptime");
+				uptime.textContent = `Live for ${calculateUptime(stream.started_at)}`;
+				
+				infoContainer.appendChild(channelName);
+				infoContainer.appendChild(title);
+				infoContainer.appendChild(uptime);
+				container.appendChild(thumbnail);
+				container.appendChild(infoContainer);
+				channelListDiv.appendChild(container);
+			});
+			
+			document.getElementById("generate").style.display = "block";
+		}
 
         function toggleSelection(container, channel) {
             if (selectedChannels.has(channel)) {
