@@ -465,62 +465,50 @@
         }
 
         function displayLiveChannels(liveChannelsData) {
-			const channelListDiv = document.getElementById("channelList");
-			// channelListDiv.innerHTML = "<h3>Live Channels</h3>";
-			
-			if (liveChannelsData.length === 0) {
-				channelListDiv.innerHTML += "<p>No live channels</p>";
-				return;
-			}
-			
-			liveChannelsData.forEach(stream => {
-				const container = document.createElement("div");
-				container.classList.add("channel-container");
-				container.dataset.channel = stream.user_login;
-				container.addEventListener("click", () => toggleSelection(container, stream.user_login));
-				
-				// Double-click event to open MultiTwitch with that channel
-				container.addEventListener("dblclick", () => {
-					window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
-				});
-
-                // Middle-click (auxclick) event (button === 1)
-                container.addEventListener("auxclick", (e) => {
-                    if (e.button === 1) { // middle mouse
+            const channelListDiv = document.getElementById("channelList");
+            channelListDiv.innerHTML = "";
+            if (liveChannelsData.length === 0) {
+                channelListDiv.innerHTML += "<p>No live channels</p>";
+                return;
+            }
+            liveChannelsData.forEach(stream => {
+                const container = document.createElement("div");
+                container.classList.add("channel-container");
+                container.dataset.channel = stream.user_login;
+                container.addEventListener("click", function() { toggleSelection(container, stream.user_login); });
+                container.addEventListener("dblclick", function() {
+                    window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
+                });
+                container.addEventListener("auxclick", function(e) {
+                    if (e.button === 1) {
                         window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
                     }
                 });
-				
-				const thumbnail = document.createElement("img");
-				thumbnail.classList.add("stream-thumbnail");
-				thumbnail.src = stream.thumbnail_url.replace("{width}", "160").replace("{height}", "90"); 
-				thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
-				
-				const infoContainer = document.createElement("div");
-				infoContainer.classList.add("channel-info");
-				
-				const channelName = document.createElement("p");
-				channelName.classList.add("channel-name");
-				channelName.textContent = stream.user_login;
-				
-				const title = document.createElement("p");
-				title.classList.add("stream-title");
-				title.textContent = stream.title;
-				
-				const uptime = document.createElement("p");
-				uptime.classList.add("stream-uptime");
-				uptime.textContent = `Live for ${calculateUptime(stream.started_at)}`;
-				
-				infoContainer.appendChild(channelName);
-				infoContainer.appendChild(title);
-				infoContainer.appendChild(uptime);
-				container.appendChild(thumbnail);
-				container.appendChild(infoContainer);
-				channelListDiv.appendChild(container);
-			});
-			
-			document.getElementById("generate").style.display = "block";
-		}
+                const thumbnail = document.createElement("img");
+                thumbnail.classList.add("stream-thumbnail");
+                thumbnail.src = stream.thumbnail_url.replace("{width}", "210").replace("{height}", "118");
+                thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
+                const infoContainer = document.createElement("div");
+                infoContainer.classList.add("channel-info");
+                const channelName = document.createElement("p");
+                channelName.classList.add("channel-name");
+                channelName.textContent = stream.user_login;
+                const title = document.createElement("p");
+                title.classList.add("stream-title");
+                title.textContent = stream.title;
+                const uptime = document.createElement("p");
+                uptime.classList.add("stream-uptime");
+                uptime.textContent = `Live for ${calculateUptime(stream.started_at)}`;
+                infoContainer.appendChild(channelName);
+                infoContainer.appendChild(title);
+                infoContainer.appendChild(uptime);
+                container.appendChild(thumbnail);
+                container.appendChild(infoContainer);
+                channelListDiv.appendChild(container);
+            });
+            document.getElementById("generate").style.display = "block";
+            document.getElementById("generate").disabled = selectedChannels.size === 0;
+        }
 
         function toggleSelection(container, channel) {
             if (selectedChannels.has(channel)) {
@@ -574,9 +562,8 @@
                         profilePic.src = user.profile_image_url;
                         const profileContainer = document.getElementById("profileContainer");
                         profileContainer.onclick = function(e) {
-                            console.log('Profile icon clicked, e.currentTarget:', e.currentTarget, 'typeof:', typeof e.currentTarget);
                             e.preventDefault();
-                            togglePopup(profileContainer, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                            togglePopup(this, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
                             const btn = document.getElementById('logoutBtn');
                             if(btn){ btn.onclick = logout; }
                         };
@@ -639,16 +626,8 @@
             document.getElementById("generate").disabled = selectedChannels.size === 0;
         }
         // Add help button event listener with logging
-        document.getElementById("helpBtn").addEventListener("click", function(e) {
-            console.log('Help button clicked', e.currentTarget);
-            togglePopup(e.currentTarget, `
-                <b>How to use:</b><ul>
-                <li>Select one or more live channels</li>
-                <li>Click Generate MultiTwitch Link</li>
-                <li>Or double/middle-click a channel to open it directly</li>
-                </ul>
-                <small>Tip: Hold Ctrl/Cmd to select multiple channels.</small>
-            `, {help:true});
+        document.getElementById("helpBtn").addEventListener("click", function() {
+            togglePopup(this, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li></ul><div style="text-align:center; color:#888;">GitHub README <a href="https://github.com/Blake-goofy/MultiTwitchSelector#readme" target="_blank">here</a></div><div style="text-align:center; color:#888;">blake13blake@gmail.com</div>`, {help:true});
         });
 
         // Add debug log to togglePopup
