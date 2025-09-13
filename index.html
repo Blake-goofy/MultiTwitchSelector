@@ -570,7 +570,7 @@
                         const profileContainer = document.getElementById("profileContainer");
                         profileContainer.onclick = function(e) {
                             e.preventDefault();
-                            togglePopup(profileContainer, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                            togglePopup(e.currentTarget, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
                             const btn = document.getElementById('logoutBtn');
                             if(btn){ btn.onclick = logout; }
                         };
@@ -610,7 +610,7 @@
                 container.addEventListener("dblclick", () => {
                     window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
                 });
-                container.addEventListener("auxclick", (e) => {
+                container.addEventListener("auxclick", function(e) {
                     if (e.button === 1) {
                         e.preventDefault();
                         window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
