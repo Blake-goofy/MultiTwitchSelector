@@ -254,6 +254,8 @@
         .popup-content {
             text-align:left;
         }
+        .popup-content a { color: #a970ff; text-decoration: underline; }
+        .popup-content a:visited { color: #a970ff; }
         .popup-content ul {
             list-style:disc;
             padding-left:20px;
@@ -566,11 +568,12 @@
                         const profilePic = document.getElementById("profilePic");
                         profilePic.src = user.profile_image_url;
                         const profileContainer = document.getElementById("profileContainer");
-                        profileContainer.addEventListener("click", function() {
-                            togglePopup(this, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                        profileContainer.onclick = function(e) {
+                            e.preventDefault();
+                            togglePopup(profileContainer, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
                             const btn = document.getElementById('logoutBtn');
                             if(btn){ btn.onclick = logout; }
-                        });
+                        };
                         fetchFollowedChannels();
                     } else { throw new Error("User data not found."); }
                 } catch(err){
@@ -590,6 +593,54 @@
                 togglePopup(this, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li></ul><div style="text-align:center; color:#888;">GitHub README <a href="https://github.com/Blake-goofy/MultiTwitchSelector#readme" target="_blank">here</a></div><div style="text-align:center; color:#888;">blake13blake@gmail.com</div>`, {help:true});
             });
         })();
+
+        // Restore middle-click open in new tab for channel containers
+        function displayLiveChannels(liveChannelsData) {
+            const channelListDiv = document.getElementById("channelList");
+            channelListDiv.innerHTML = "";
+            if (liveChannelsData.length === 0) {
+                channelListDiv.innerHTML += "<p>No live channels</p>";
+                return;
+            }
+            liveChannelsData.forEach(stream => {
+                const container = document.createElement("div");
+                container.classList.add("channel-container");
+                container.dataset.channel = stream.user_login;
+                container.addEventListener("click", () => toggleSelection(container, stream.user_login));
+                container.addEventListener("dblclick", () => {
+                    window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
+                });
+                container.addEventListener("auxclick", (e) => {
+                    if (e.button === 1) {
+                        e.preventDefault();
+                        window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
+                    }
+                });
+                const thumbnail = document.createElement("img");
+                thumbnail.classList.add("stream-thumbnail");
+                thumbnail.src = stream.thumbnail_url.replace("{width}", "210").replace("{height}", "118");
+                thumbnail.alt = `${stream.user_login}'s stream thumbnail`;
+                const infoContainer = document.createElement("div");
+                infoContainer.classList.add("channel-info");
+                const channelName = document.createElement("p");
+                channelName.classList.add("channel-name");
+                channelName.textContent = stream.user_login;
+                const title = document.createElement("p");
+                title.classList.add("stream-title");
+                title.textContent = stream.title;
+                const uptime = document.createElement("p");
+                uptime.classList.add("stream-uptime");
+                uptime.textContent = `Live for ${calculateUptime(stream.started_at)}`;
+                infoContainer.appendChild(channelName);
+                infoContainer.appendChild(title);
+                infoContainer.appendChild(uptime);
+                container.appendChild(thumbnail);
+                container.appendChild(infoContainer);
+                channelListDiv.appendChild(container);
+            });
+            document.getElementById("generate").style.display = "block";
+            document.getElementById("generate").disabled = selectedChannels.size === 0;
+        }
     </script>
 
 </body>
