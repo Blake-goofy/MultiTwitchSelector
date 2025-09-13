@@ -406,16 +406,20 @@
 					userId = data.data[0].id;
 					const user = data.data[0];
 		
-					// Set profile picture
-					const profilePic = document.getElementById("profilePic");
-					profilePic.src = user.profile_image_url;
-					
-					// Show channel name on click
-					document.getElementById("profileContainer").addEventListener("click", () => {
-						togglePopup(`Logged in as: ${user.display_name}`);
-					});
-		
-					fetchFollowedChannels();
+                    // Set profile picture
+                    const profilePic = document.getElementById("profilePic");
+                    profilePic.src = user.profile_image_url;
+
+                    // Show channel name on click (fix: pass DOM element, not string)
+                    const profileContainer = document.getElementById("profileContainer");
+                    profileContainer.onclick = function(e) {
+                        e.preventDefault();
+                        togglePopup(this, `<div class='profile-row'>${user.display_name} <button id='logoutBtn'>Logout</button></div>`);
+                        const btn = document.getElementById('logoutBtn');
+                        if(btn){ btn.onclick = logout; }
+                    };
+
+                    fetchFollowedChannels();
 				} else {
 					throw new Error("User data not found.");
 				}
@@ -480,7 +484,9 @@
                     window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
                 });
                 container.addEventListener("auxclick", function(e) {
+                    // Fix: Prevent default middle click scroll, open link in new window
                     if (e.button === 1) {
+                        e.preventDefault();
                         window.open(`https://www.multitwitch.tv/${stream.user_login}?darkmode`, "_blank");
                     }
                 });
