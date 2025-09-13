@@ -296,7 +296,6 @@
             <div id="profileContainer">
                 <img id="profilePic" src="" alt="Profile" title="Profile" />
             </div>
-            <span id="lastRefreshed" style="font-size:11px;color:#7d7d86;white-space:nowrap;">&nbsp;</span>
         </div>
       </div>
     </div>
@@ -308,7 +307,8 @@
 	</div>
     
     <button id="generate" style="display:none;">Generate MultiTwitch Link</button>
-	<div id="channelList"></div>
+    <div id="channelList"></div>
+    <div id="lastRefreshed" style="margin:10px auto 6px; font-size:12px; color:#7d7d86; font-family:Segoe UI, Arial, sans-serif; letter-spacing:.5px;">&nbsp;</div>
 
     <script>
         // Logout function for profile popup
@@ -700,7 +700,7 @@
             const el = document.getElementById('lastRefreshed');
             if(!el) return;
             const d = new Date();
-            el.textContent = `Refreshed ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}`;
+            el.textContent = `Last refreshed at ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}`;
         }
 
         async function refreshLiveChannels(force=false){
