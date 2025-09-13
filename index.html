@@ -296,6 +296,7 @@
             <div id="profileContainer">
                 <img id="profilePic" src="" alt="Profile" title="Profile" />
             </div>
+            <span id="lastRefreshed" style="font-size:11px;color:#7d7d86;white-space:nowrap;">&nbsp;</span>
         </div>
       </div>
     </div>
@@ -598,6 +599,12 @@
                 channelListDiv.innerHTML += "<p>No live channels</p>";
                 return;
             }
+            // Remove any channels from the selected set that are no longer live
+            const liveSet = new Set(liveChannelsData.map(s => s.user_login));
+            for (const ch of Array.from(selectedChannels)) {
+                if (!liveSet.has(ch)) selectedChannels.delete(ch);
+            }
+
             liveChannelsData.forEach(stream => {
                 const container = document.createElement("div");
                 container.classList.add("channel-container");
@@ -633,10 +640,15 @@
                 infoContainer.appendChild(uptime);
                 container.appendChild(thumbnail);
                 container.appendChild(infoContainer);
+                // Re-apply selection state if user had previously selected this channel
+                if (selectedChannels.has(stream.user_login)) {
+                    container.classList.add("selected");
+                }
                 channelListDiv.appendChild(container);
             });
             document.getElementById("generate").style.display = "block";
             document.getElementById("generate").disabled = selectedChannels.size === 0;
+            updateLastRefreshed();
         }
         // Add help button event listener with logging
         document.getElementById("helpBtn").addEventListener("click", function() {
@@ -678,6 +690,44 @@
             const arrowPos = (desiredCenter - finalLeft) - 6;
             contentEl.style.setProperty('--arrow-left', arrowPos + 'px');
         }
+
+        // ---------------- Auto Refresh on Focus / Visibility -----------------
+        let lastRefreshTime = 0;
+        const MIN_REFRESH_INTERVAL_MS = 15000; // 15s guard against accidental rapid refocus
+        let pendingRefreshTimeout = null;
+
+        function updateLastRefreshed(){
+            const el = document.getElementById('lastRefreshed');
+            if(!el) return;
+            const d = new Date();
+            el.textContent = `Refreshed ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}`;
+        }
+
+        async function refreshLiveChannels(force=false){
+            if(!userId) return; // not ready yet
+            const now = Date.now();
+            if(!force && now - lastRefreshTime < MIN_REFRESH_INTERVAL_MS){
+                // schedule for when interval elapses if not already queued
+                if(!pendingRefreshTimeout){
+                    const delay = MIN_REFRESH_INTERVAL_MS - (now - lastRefreshTime) + 50;
+                    pendingRefreshTimeout = setTimeout(()=>{ pendingRefreshTimeout=null; refreshLiveChannels(); }, delay);
+                }
+                return;
+            }
+            lastRefreshTime = now;
+            fetchFollowedChannels();
+        }
+
+        function handleVisibilityOrFocus(){
+            if(!document.hidden){
+                refreshLiveChannels();
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+        window.addEventListener('focus', handleVisibilityOrFocus);
+
+        // Initial timestamp placeholder
+        updateLastRefreshed();
     </script>
 
 </body>
