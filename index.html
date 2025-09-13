@@ -33,7 +33,7 @@
             padding: 22px 22px 18px;
             border-radius: 14px;
             max-height: 72vh;
-            width: 640px; /* widened */
+            width: 880px; /* widened */
             overflow-y: auto;
             box-shadow: 0px 4px 18px rgba(0,0,0,0.35);
             transition: transform .18s ease, box-shadow .25s ease;
@@ -42,9 +42,9 @@
         .channel-container {
             display:flex;
             align-items:center;
-            gap:18px;
+            gap:22px; /* increased gap */
             margin:8px 0;
-            padding:10px 12px;
+            padding:14px 16px; /* increased padding */
             background:#24242a;
             border-radius:12px;
             cursor:pointer;
@@ -61,8 +61,8 @@
         .channel-container.selected .stream-uptime { color:#e2d4fa; }
 
         .stream-thumbnail {
-            width:192px;
-            height:108px;
+            width:240px; /* enlarged thumbnail */
+            height:135px;
             border-radius:8px;
             box-shadow:0 4px 10px rgba(0,0,0,.35);
         }
@@ -82,7 +82,7 @@
         .stream-title {
             font-size:14px;
             color:#cfcfd4;
-            max-width:340px;
+            max-width:560px; /* expanded max width */
             white-space:nowrap;
             overflow:hidden;
             text-overflow:ellipsis;
@@ -130,7 +130,7 @@
             border-left: 1px solid #34323a;
         }
         @keyframes popIn { from { opacity:0; transform:translateY(-4px) scale(.96);} to { opacity:1; transform:translateY(0) scale(1);} }
-        #generate {
+		#generate {
 			display: none;
 			background:#a970ff;
 			color:#fff;
@@ -220,16 +220,28 @@
         #logoutBtn:hover { background:#a970ff; border-color:#a970ff; color:#fff; transform:translateY(-2px); }
 
         .profile-row { display:flex; align-items:center; font-size:15px; font-weight:600; }
+
+        .top-bar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:18px; }
+        .top-left { display:flex; align-items:center; gap:14px; }
+        #helpBtn, #profileContainer { position: static; }
+        h1 { margin:0; font-size:30px; }
+        .popup-content { padding:8px 12px 10px; font-size:13px; line-height:1.35; }
+        .popup-content.compact { white-space:nowrap; }
+        .popup-content.help-wide { max-width:none; width:auto; }
     </style>
 </head>
 <body>
-	<div id="profileContainer">
-		<img id="profilePic" src="" alt="Profile" title="Click to see your channel name">
-	</div>
-	
-	<button id="helpBtn">?</button>
-
-    <h1>MultiTwitch Live Channel Selector</h1>
+    <div class="top-bar">
+        <div class="top-left">
+            <h1>MultiTwitch Live Channel Selector</h1>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <button id="helpBtn">?</button>
+            <div id="profileContainer">
+                <img id="profilePic" src="" alt="Profile" title="Profile" />
+            </div>
+        </div>
+    </div>
 	
 	<div id="popup" class="popup">
 		<div class="popup-content">
@@ -279,15 +291,19 @@
 		}
 		
 		// Replace togglePopup with anchored version
-		function togglePopup(anchorEl, html) {
+		function togglePopup(anchorEl, html, opts={}) {
             const popup = document.getElementById('popup');
             const popupText = document.getElementById('popupText');
+            const contentEl = popup.querySelector('.popup-content');
+            contentEl.classList.remove('compact','help-wide');
             if (popup.dataset.anchorId === anchorEl.id && popup.style.display === 'block') {
                 popup.style.display = 'none';
                 popup.dataset.anchorId = '';
                 return;
             }
             popupText.innerHTML = html;
+            if(opts.compact) contentEl.classList.add('compact');
+            if(opts.help) contentEl.classList.add('help-wide','compact');
             popup.style.display = 'block';
             popup.dataset.anchorId = anchorEl.id;
             const rect = anchorEl.getBoundingClientRect();
@@ -300,10 +316,9 @@
             const maxLeft = scrollX + window.innerWidth - popupWidth - 12;
             const finalLeft = Math.min(Math.max(left, minLeft), maxLeft);
             popup.style.left = finalLeft + 'px';
-            popup.style.top = (rect.bottom + 8 + scrollY) + 'px';
-            // Arrow offset
-            const arrowPos = (desiredCenter - finalLeft) - 6; // minus half arrow width
-            popup.querySelector('.popup-content').style.setProperty('--arrow-left', arrowPos + 'px');
+            popup.style.top = (rect.bottom + 6 + scrollY) + 'px';
+            const arrowPos = (desiredCenter - finalLeft) - 6;
+            contentEl.style.setProperty('--arrow-left', arrowPos + 'px');
         }
 
         // Global click to close if clicking outside
@@ -505,8 +520,8 @@
             const helpBtn = document.getElementById('helpBtn');
             helpBtn.replaceWith(helpBtn.cloneNode(true));
             const newHelpBtn = document.getElementById('helpBtn');
-            newHelpBtn.addEventListener('click', ()=>{
-                togglePopup(newHelpBtn, `<strong>About MultiTwitch Live Selector</strong><br><br>• Select multiple live channels by clicking on them.<br>• Click \"Generate MultiTwitch Link\" to open selected channels in a new tab.<br>• Double-click a channel to open it directly in MultiTwitch.<br><br><span style='opacity:.7'>Support: blake13blake@gmail.com</span>`);
+            newHelpBtn.addEventListener('click', () => {
+                togglePopup(newHelpBtn, `Select multiple live channels by clicking. • Use Generate Link to open them. • Double / Middle click opens immediately. • Support: blake13blake@gmail.com`, {help:true});
             });
         })();
 
