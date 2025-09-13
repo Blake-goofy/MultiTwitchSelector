@@ -11,7 +11,8 @@
             color: #e0e0e0;
             font-family: 'Arial', sans-serif;
             text-align: center;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
 			overflow: hidden;
         }
 
@@ -262,10 +263,6 @@
         .popup-content ul li {
             padding:4px 0;
             border-bottom:none;
-        }
-        .popup-content ul li:nth-last-child(1),
-        .popup-content ul li:nth-last-child(2) {
-            color:#888;
         }
         #helpBtn,
         #profileContainer {
@@ -579,7 +576,7 @@
             helpBtn.replaceWith(helpBtn.cloneNode(true));
             const newHelpBtn = document.getElementById('helpBtn');
             newHelpBtn.addEventListener('click', () => {
-                togglePopup(newHelpBtn, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li><li>Logout via profile popup</li><li>Support: blake13blake@gmail.com</li></ul>`);
+                togglePopup(newHelpBtn, `<ul><li>Select channels by clicking</li><li>Generate Link opens all selected</li><li>Double / Middle click opens instantly</li></ul><div style="text-align:center; color:#888;">blake13blake@gmail.com</div>`);
             });
         })();
 
